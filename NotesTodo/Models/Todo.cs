@@ -10,9 +10,12 @@
         public Criticality Criticality { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime DateDue { get; set; }
-        public ICollection<User> AssingedUser { get; set; } = new List<User>();
+        public ICollection<User> AssignedUsers { get; set; } = new List<User>();
+        public int CreatedByUserId { get; set; }
         public User CreatedByUser { get; set; } = null!;
-        public User? CompletedByUser { get; set; } = new User();
+        public int? CompletedByUserId { get; set; }
+        public User? CompletedByUser { get; set; }
+        public int TodoProjectId { get; set; }
         public TodoProject TodoProject { get; set; } = null!;
     }
 
@@ -24,6 +27,9 @@
         public TodoStatus Status { get; set; }
         public ICollection<User> AssingedUsers { get; set; } = new List<User>();
         public Criticality Criticality { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public int TodoId { get; set; }
+        public Todo Todo { get; set; } = null!;
     }
 
     public enum TodoStatus

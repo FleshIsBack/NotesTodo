@@ -14,6 +14,7 @@ namespace NotesTodo.Models
     {
         public int UserId { get; set; }
         public User User { get; set; } = new User();
+        public int TodoProjectId { get; set; }
         public TodoProject TodoProject { get; set; } = new TodoProject();
         public Role Role { get; set; }
     }

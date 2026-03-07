@@ -1,12 +1,21 @@
-﻿using NotesTodo.Models;
+﻿using NotesTodo.DAL;
+using NotesTodo.Models;
 using NotesTodo.Services.Interface;
 
 namespace NotesTodo.Services
 {
     public class TodoService : ITodoService
     {
+        private TodoDb db = null!;
+
+        public TodoService(TodoDb db)
+        {
+            this.db = db;
+        }
+
         public Task<AddProjectMemberDTO> AddMemberToTodoAsync(int todoId, AddProjectMemberDTO addMemberDto, int userId)
         {
+
             throw new NotImplementedException();
         }
 

@@ -1,4 +1,7 @@
-﻿using NotesTodo.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using NotesTodo.DAL;
+using NotesTodo.Models;
 using NotesTodo.Services;
 
 namespace Tests.Services
@@ -7,11 +10,26 @@ namespace Tests.Services
     public class UserServiceTests
     {
         private UserSevice _userService = null!;
+        private TodoDb _context = null!;
+        private IConfiguration _configuration = null!;
 
         [TestInitialize]
         public void Setup()
         {
-            _userService = new UserSevice();
+            var options = new DbContextOptionsBuilder<TodoDb>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+            _context = new TodoDb(options);
+            _configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    { "Jwt:Secret", "this-is-a-test-secret-that-is-long-enough" },
+                    { "Jwt:Issuer", "NotesTodo" },
+                    { "Jwt:Audience", "NotesTodo" }
+                }).Build();
+
+            _userService = new UserSevice(_context, _configuration);
         }
         [TestMethod]
         public async Task RegisterUserAsync_ShouldRegisterUser()
@@ -117,6 +135,9 @@ namespace Tests.Services
             var result = await _userService.LoginUserAsync(loginDto);
             // Assert
             Assert.IsNotNull(result);
+            //Assert.IsTrue(result.Token == null);
+            Assert.AreEqual(result.User.Email, createUser.Email);
+            Assert.AreEqual(result.User.Name, createUser.Name);
         }
 
         [TestMethod]
@@ -306,7 +327,7 @@ namespace Tests.Services
             };
             var loginResult = await _userService.LoginUserAsync(loginDto);
             // Act
-            await _userService.DeleteUserAsync(registeredUser.Id, loginResult.Token);
+            await _userService.DeleteUserAsync(registeredUser.Id);
             // Assert
             await Assert.ThrowsExceptionAsync<KeyNotFoundException>(() =>
                 _userService.GetUserByIdAsync(registeredUser.Id));
@@ -320,24 +341,7 @@ namespace Tests.Services
             var token = "sometoken";
             // Act & Assert
             await Assert.ThrowsExceptionAsync<KeyNotFoundException>(() =>
-                _userService.DeleteUserAsync(nonExistentUserId, token));
-        }
-
-        [TestMethod]
-        public async Task DeleteUserAsync_ShouldThrowException_WhenTokenIsInvalid()
-        {
-            // Arrange
-            var createUser = new CreateUserDTO
-            {
-                Name = "Test User",
-                Email = "testuser@hello.com",
-                Password = "password123"
-            };
-            var registeredUser = await _userService.RegisterUserAsync(createUser);
-            var invalidToken = "invalidtoken";
-            // Act & Assert
-            await Assert.ThrowsExceptionAsync<UnauthorizedAccessException>(() =>
-                _userService.DeleteUserAsync(registeredUser.Id, invalidToken));
+                _userService.DeleteUserAsync(nonExistentUserId));
         }
     }
 }

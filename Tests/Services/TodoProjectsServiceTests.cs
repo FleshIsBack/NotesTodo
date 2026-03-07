@@ -1,4 +1,8 @@
-﻿using NotesTodo.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+//using Microsoft.Testing.Platform.Configurations;
+using NotesTodo.DAL;
+using NotesTodo.Models;
 using NotesTodo.Services;
 using NotesTodo.Services.Interface;
 
@@ -9,14 +13,28 @@ namespace Tests
     {
         private TodoProjectService _service = null!;
         private UserSevice _userService = null!;
+        private TodoDb _context = null!;
+        private IConfiguration _configuration = null!;
+
         [TestInitialize]
-        public void setup()
+        public void Setup()
         {
-            _service = new TodoProjectService();
-            _userService = new UserSevice();
+            var options = new DbContextOptionsBuilder<TodoDb>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
 
+            _context = new TodoDb(options);
+            _configuration = new ConfigurationBuilder()
+    .AddInMemoryCollection(new Dictionary<string, string?>
+    {
+                    { "Jwt:Secret", "this-is-a-test-secret-that-is-long-enough" },
+                    { "Jwt:Issuer", "NotesTodo" },
+                    { "Jwt:Audience", "NotesTodo" }
+    }).Build();
+
+            _service = new TodoProjectService(_context);
+            _userService = new UserSevice(_context, _configuration);
         }
-
         [TestMethod]
         public async Task CreateProjectAsync_ShouldCreateProject()
         {

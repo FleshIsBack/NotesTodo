@@ -9,6 +9,6 @@ namespace NotesTodo.Services.Interface
             Task<UserResponseDTO> GetUserByIdAsync(int userId);
             Task<List<UserResponseDTO>> GetAllUsersInProjectAsync(int id);
             Task<UserResponseDTO> UpdateUserAsync(int userId, UpdateUserDTO updateDto);
-            Task DeleteUserAsync(int userId, string token);
+            Task DeleteUserAsync(int userId);
     }
 }

@@ -1,10 +1,19 @@
-﻿using NotesTodo.Models;
+﻿using NotesTodo.DAL;
+using NotesTodo.Models;
 using NotesTodo.Services.Interface;
 
 namespace NotesTodo.Services
 {
     public class TodoProjectService : ITodoProjectService
     {
+        private TodoDb db = null!;
+
+
+        public TodoProjectService(TodoDb db)
+        {
+            this.db = db;
+        }
+
         public Task AddMemberToProjectAsync(int projectId, AddProjectMemberDTO addMemberDto, int userId)
         {
             throw new NotImplementedException();
@@ -15,7 +24,7 @@ namespace NotesTodo.Services
             throw new NotImplementedException();
         }
 
-        public Task DeleteProjectAsync(int projectId, int userId)
+        public async Task DeleteProjectAsync(int projectId, int userId)
         {
             throw new NotImplementedException();
         }

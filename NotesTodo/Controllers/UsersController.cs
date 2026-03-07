@@ -91,19 +91,19 @@ namespace NotesTodo.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var requestingUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            if (requestingUserId != id)
+                return Forbid();
+
             try
             {
-                await _userService.DeleteUserAsync(id, userId.ToString());
+                await _userService.DeleteUserAsync(id);
                 return NoContent();
             }
             catch (KeyNotFoundException e)
             {
                 return NotFound(e.Message);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Forbid();
             }
         }
     }

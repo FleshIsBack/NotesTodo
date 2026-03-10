@@ -108,9 +108,31 @@ namespace NotesTodo.Services;
             Email = newUser.Email
         };
     }
-    public Task<UserResponseDTO> UpdateUserAsync(int userId, UpdateUserDTO updateDto)
+    public async Task<UserResponseDTO> UpdateUserAsync(int userId, UpdateUserDTO updateDto)
     {
-        throw new NotImplementedException();
+        var existingUser = await db.Users.FindAsync(userId);
+
+        if (existingUser == null)
+            throw new KeyNotFoundException("User not found");
+
+        // Update fields if provided
+        if (!string.IsNullOrWhiteSpace(updateDto.Name))
+            existingUser.Name = updateDto.Name;
+
+        if (!string.IsNullOrWhiteSpace(updateDto.Email))
+            existingUser.Email = updateDto.Email;
+
+        if (!string.IsNullOrWhiteSpace(updateDto.Password))
+            existingUser.Password = BCrypt.Net.BCrypt.HashPassword(updateDto.Password);
+
+        await db.SaveChangesAsync();
+
+        return new UserResponseDTO
+        {
+            Id = existingUser.Id,
+            Name = existingUser.Name,
+            Email = existingUser.Email
+        };
     }
 
     public Task<List<UserResponseDTO>> GetAllUsersInProjectAsync(int id)
